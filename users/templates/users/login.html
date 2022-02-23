@@ -11,8 +11,8 @@
                             {% if messages %} alert-success {% else %} alert-warning {% endif %}" role="alert"
                                  style="margin-top: 50px;">
                                 {% if messages %}
-                                    {% for mesaage in messages %}
-                                        {{ mesaage }}
+                                    {% for message in messages %}
+                                        {{ message }}
                                     {% endfor %}
                                 {% else %}
                                     {{ form.non_field_errors }}
