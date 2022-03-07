@@ -45,3 +45,9 @@ def admin_users_update(request, pk):
     context = {'title': 'GeekShop-Admin', 'form': form, 'selected_user': selected_user}
     return render(request, 'admins/admin-users-update-delete.html', context)
 
+
+# Delete controller
+def admin_users_delete(request, pk):
+    user = User.objects.get(id=pk)
+    user.safe_delete()
+    return HttpResponseRedirect(reverse('admin_staff:admin_users'))
