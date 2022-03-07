@@ -1,6 +1,6 @@
 from django import forms
 
-from users.forms import UserRegistrationForm
+from users.forms import UserRegistrationForm, UserProfileForm
 from users.models import User
 
 
@@ -11,3 +11,7 @@ class UserAdminRegistrationForm(UserRegistrationForm):
         model = User
         fields = ('first_name', 'last_name', 'image', 'username', 'email', 'password1', 'password2')
 
+
+class UserAdminProfileForm(UserProfileForm):
+    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control py-4'}))
+    email = forms.CharField(widget=forms.EmailInput(attrs={'class': 'form-control py-4'}))
