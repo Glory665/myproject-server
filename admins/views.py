@@ -1,6 +1,6 @@
 from django.shortcuts import render, HttpResponseRedirect
 from django.urls import reverse_lazy
-from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.decorators import user_passes_test
 from django.utils.decorators import method_decorator
 from django.views.generic.list import ListView
@@ -16,18 +16,28 @@ def index(request):
     return render(request, 'admins/index.html', context)
 
 
-class UserListView(ListView):
-    model = User
-    template_name = 'admins/admin-users-read.html'
+class TitleMixin:
+    title = None
 
     def get_context_data(self, object_list=None, *args, **kwargs):
-        context = super(UserListView, self).get_context_data()
-        context['title'] = 'GeekShop - Admin'
+        context = super(TitleMixin, self).get_context_data(object_list=None, **kwargs)
+        context['title'] = self.title
         return context
+
+
+class UserListView(TitleMixin, ListView):
+    model = User
+    template_name = 'admins/admin-users-read.html'
+    title = 'GeekShop - Админка'
+
+    # def get_context_data(self, object_list=None, *args, **kwargs):
+    #     context = super(UserListView, self).get_context_data()
+    #     context['title'] = 'GeekShop - Admin'
+    #     return context
 
     @method_decorator(user_passes_test(lambda u: u.is_staff))
     def dispatch(self, request, *args, **kwargs):
-        return super(UserListView, self).dispatch()
+        return super(UserListView, self).dispatch(request, *args, **kwargs)
 
 
 # Read controller
@@ -38,11 +48,12 @@ class UserListView(ListView):
 #     return render(request, 'admins/admin-users-read.html', context)
 
 
-class UserCreateView(CreateView):
+class UserCreateView(SuccessMessageMixin, CreateView):
     model = User
     form_class = UserAdminRegistrationForm
     template_name = 'admins/admin-users-create.html'
     success_url = reverse_lazy('admin_staff:admin_users')
+    success_message = 'Пользователь успешно создан!'
 
 
 # Create controller
@@ -60,11 +71,12 @@ class UserCreateView(CreateView):
 #     return render(request, 'admins/admin-users-create.html', context)
 
 
-class UserAdminUpdateView(UpdateView):
+class UserAdminUpdateView(TitleMixin, UpdateView):
     model = User
     form_class = UserAdminProfileForm
     template_name = 'admins/admin-users-update-delete.html'
     success_url = reverse_lazy('admin_staff:admin_users')
+    title = 'GeekShop - Админка'
 
 # Update controller
 # @user_passes_test(lambda u: u.is_staff)
