@@ -19,6 +19,11 @@ class UserListView(ListView):
     model = User
     template_name = 'admins/admin-users-read.html'
 
+    def get_context_data(self, object_list=None, *args, **kwargs):
+        context = super(UserListView, self).get_context_data()
+        context['title'] = 'GeekShop - Admin'
+        return context
+
 
 # Read controller
 # @user_passes_test(lambda u: u.is_staff)
