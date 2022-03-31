@@ -2,7 +2,7 @@ import random, hashlib
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, UserChangeForm
 
-from users.models import User
+from users.models import User, UserProfile
 
 
 class UserLoginForm(AuthenticationForm):
@@ -54,3 +54,10 @@ class UserProfileForm(UserChangeForm):
     class Meta:
         model = User
         fields = ('first_name', 'last_name', 'image', 'username', 'email')
+
+
+class UserProfileEditForm(forms.ModelForm): # https://django-crispy-forms.readthedocs.io/en/latest/
+
+    class Meta:
+        model = UserProfile
+        fields = ('about', 'gender')

@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-from users.forms import UserLoginForm, UserRegistrationForm, UserProfileForm
+from users.forms import UserLoginForm, UserRegistrationForm, UserProfileForm, UserProfileEditForm
 from baskets.models import Basket
 from users.models import User
 
@@ -19,7 +19,7 @@ def login(request):
             password = request.POST['password']
             user = auth.authenticate(username=username, password=password)
             if user and user.is_active:
-                auth.login(request, user)
+                auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 return HttpResponseRedirect(reverse('index'))
     else:
         form = UserLoginForm()
@@ -73,15 +73,18 @@ def profile(request):
     user = request.user
     if request.method == 'POST':
         form = UserProfileForm(instance=user, data=request.POST, files=request.FILES)
-        if form.is_valid():
+        profile_form = UserProfileEditForm(request.POST, instance=request.user.userprofile)
+        if form.is_valid() and profile_form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse('users:profile'))
     else:
         form = UserProfileForm(instance=user)
+        profile_form = UserProfileEditForm(instance=request.user.userprofile)
     context = {
         'title': 'GeekShop - Профиль',
         'form': form,
         'baskets': Basket.objects.filter(user=user),
+        'profile_form': profile_form,
     }
     return render(request, 'users/profile.html', context)
 

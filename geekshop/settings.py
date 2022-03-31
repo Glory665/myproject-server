@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'social_django',
 
     'products',
     'users',
@@ -144,3 +145,17 @@ EMAIL_USE_SSL = False
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = 'tmp/emails/'
+
+SOCIAL_AUTH_VK_OAUTH2_KEY = '8118960'
+SOCIAL_AUTH_VK_OAUTH2_SECRET = 'JxzDSgGclksbqi62ks1k'
+SOCIAL_AUTH_VK_OAUTH2_API_VERSION = '5.131'
+SOCIAL_AUTH_VK_OAUTH2_IGNORE_DEFAULT_SCOPE = True
+SOCIAL_AUTH_VK_OAUTH2_SCOPE = ['email', 'age']
+
+LOGIN_REDIRECT_URL = '/'
+LOGIN_ERROR_URL = '/'
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'social_core.backends.vk.VKOAuth2'
+)
