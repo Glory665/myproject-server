@@ -16,6 +16,8 @@
             </div>
             <form action="{% url 'users:profile' %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
+                {{ form.as_p }}
+                {{ profile_form.as_p }}
                 <div class="form-row">
                     <div class="col-lg-6">
                         <div class="form-group">
