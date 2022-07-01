@@ -2,7 +2,7 @@ from django.db import connection
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.shortcuts import render, HttpResponseRedirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.decorators import user_passes_test
 from django.utils.decorators import method_decorator
@@ -11,7 +11,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from products.models import ProductCategory
 from users.models import User
-from admins.forms import UserAdminRegistrationForm, UserAdminProfileForm
+from admins.forms import UserAdminRegistrationForm, UserAdminProfileForm, ProductCategoryEditForm
 
 
 def db_profile_by_type(prefix, type, queries):
@@ -130,3 +130,57 @@ class UserAdminDeleteView(DeleteView):
 #     user = User.objects.get(id=pk)
 #     user.safe_delete()
 #     return HttpResponseRedirect(reverse('admin_staff:admin_users'))
+
+
+class ProductCategoryUpdateView(UpdateView):
+    model = ProductCategory
+    template_name = 'admins/category_update.html'
+    success_url = reverse_lazy('admins-staff:categories')
+    form_class = ProductCategoryEditForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'категории/редактирование'
+        return context
+
+    def form_valid(self, form):
+        if 'discount' in form.cleaned_data:
+            discount = form.cleaned_data['discount']
+            if discount:
+                self.object.product_set.update(price=F('price') * (1 - discount / 100))
+                db_profile_by_type(self.__class__, 'UPDATE', connection.queries)
+
+        return super().form_valid(form)
+
+
+def categories(request):
+    title = 'админка/категории'
+
+    categories_list = ProductCategory.objects.all()
+
+    context = {
+        'title': title,
+        'objects': categories_list
+    }
+
+    return render(request, 'admins/categories.html', context)
+
+
+def category_create(request):
+    title = 'категории/создание'
+
+    if request.method == 'POST':
+        edit_form = ProductCategoryEditForm(request.POST, request.FILES)
+
+        if edit_form.is_valid():
+            edit_form.save()
+            return HttpResponseRedirect(reverse('admin-stuff:categories'))
+    else:
+        edit_form = ProductCategoryEditForm()
+
+    context = {
+        'title': title,
+        'update_form': edit_form
+    }
+
+    return render(request, 'admins/category_update.html', context)

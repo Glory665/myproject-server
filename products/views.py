@@ -1,5 +1,14 @@
-from django.shortcuts import render
+from audioop import reverse
 
+from django.db import connection
+from django.db.models import F
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
+from django.urls import reverse_lazy
+from django.views.generic import UpdateView
+
+from admins.forms import ProductCategoryEditForm
+from admins.views import db_profile_by_type
 from products.models import ProductCategory, Product
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.cache import cache
@@ -44,3 +53,5 @@ def products(request, category_id=None, page=1):
         'products': products_paginator,
     }
     return render(request, 'products/products.html', context)
+
+
