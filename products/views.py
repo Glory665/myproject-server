@@ -1,14 +1,40 @@
-from django.shortcuts import render
+from audioop import reverse
 
+from django.db import connection
+from django.db.models import F
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
+from django.urls import reverse_lazy
+from django.views.generic import UpdateView
+
+from admins.forms import ProductCategoryEditForm
+from admins.views import db_profile_by_type
 from products.models import ProductCategory, Product
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.cache import cache
+from django.conf import settings
+from django.views.decorators.cache import cache_page, never_cache
 
 
+# def get_links_menu(category_id=None):
+#     if settings.LOW_CACHE:
+#        key = 'categories'
+#         categories = cache.get(key)
+#         if categories is None:
+#             categories = Product.objects.filter(category_id=category_id)
+#             cache.set(key, categories)
+#         return categories
+#     else:
+#         return Product.objects.filter(category_id=category_id)
+
+
+@never_cache
 def index(request):
     context = {'title': 'GeekShop'}
     return render(request, 'products/index.html', context)
 
 
+@cache_page(3600)
 def products(request, category_id=None, page=1):
     if category_id:
         products = Product.objects.filter(category_id=category_id)
@@ -27,3 +53,5 @@ def products(request, category_id=None, page=1):
         'products': products_paginator,
     }
     return render(request, 'products/products.html', context)
+
+
